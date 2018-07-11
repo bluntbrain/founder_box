@@ -1,5 +1,5 @@
 # founder_box
-Automated weight based vending cabinet.
+Weight based vending proof of concept.
 
 Hardware used -
   1. Raspberry pi 3
@@ -8,3 +8,6 @@ Hardware used -
   4. 12V soleniod door lock
   5. Buzzer
   6. Jumper wires
+  
+  
+ ![screenshot 5](https://user-images.githubusercontent.com/34113569/42567915-fda5aaf6-8528-11e8-845a-7b587d6c7884.png)
