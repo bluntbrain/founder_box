@@ -18,7 +18,7 @@ if(pattern%10==1)
   time.sleep(8)
   GPIO.output(mypin,GPIO.HIGH)
   final_weight = float(weightInput())
-  output=output+(initial_weight-final_weight)/product1_weight+' '
+  output=output+str((initial_weight-final_weight))/product1_weight+' '
 
   
 pattern=pattern/10
@@ -29,7 +29,7 @@ if(pattern%10==1)
   time.sleep(8)
   GPIO.output(mypin,GPIO.HIGH)
   final_weight = float(weightInput())
-  output=output+(initial_weight-final_weight)/product2_weight+' '
+  output=output+str((initial_weight-final_weight)/product2_weight)+' '
 
 
 pattern=pattern/10
@@ -40,7 +40,7 @@ if(pattern%10==1)
   time.sleep(8)
   GPIO.output(mypin,GPIO.HIGH)
   final_weight = float(weightInput())
-  output=output+(initial_weight-final_weight)/product3_weight+' '
+  output=output+str((initial_weight-final_weight)/product3_weight)+' '
 
 pattern=pattern/10
 if(pattern%10==1)
@@ -50,7 +50,5 @@ if(pattern%10==1)
   time.sleep(8)
   GPIO.output(mypin,GPIO.HIGH)
   final_weight = float(weightInput())
-  output=output+(initial_weight-final_weight)/product4_weight+' '
+  output=output+str((initial_weight-final_weight)/product4_weight)+' '
  
-      
-   
