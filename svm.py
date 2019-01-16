@@ -4,6 +4,8 @@ import time
 import RPi.GPIO as GPIO
 import SimpleMFRC522
 import array
+import serial
+import time
 
 continue_reading = True
 BuzzerPin = 11 # Raspberry Pi Pin 17-GPIO 17
@@ -14,21 +16,20 @@ class product:
         self.weight = weight
         self.price = price
 
-product1 = product("300ml",50,30)
-product2 = product("750ml",100,60)
-product3 = product("1.25L",200,120)
-product4 = product("2.25L",400,240)
+product1 = product("5Star",20,10)
+product2 = product("Amul Bisuit",60,10)
+product3 = product("Maggi",70,12)
+product4 = product("Uncle chips",30,10)
 
 
 def locks_to_open():
     locks =array.array('i')
-    x=int(input())
     for i in range(4):
-        locks.append(x%10)
-        x=x/10
+        print ("Do you want to open lock "+str(i+1))
+        locks.append(input())
     # print ('ARRAY: ',locks_array) 
     # print(locks_array[0])
-    locks.reverse()
+    
     return locks  
 
 def fetch_data(rfid):
@@ -55,23 +56,34 @@ def ledoff(number):
 
 
 def weightInput():
-    return input("weight input:")
+    x=1;
+    serialport = serial.Serial("/dev/ttyUSB0", 9600, timeout=0.5)
+    s=""
+    while x:
+        if serialport.inWaiting()>0:
+            for i in range(7):
+                s=s+serialport.read()
+            if len(s) > 4:
+                x=0;
+            time.sleep(1)
+    print str(s)
+    return str(s)
 
 print("Welcome to SVM v1.0")
-print("please scan your SVM debit card")
-reader = SimpleMFRC522.SimpleMFRC522()
-
-try:
-        id, text = reader.read()
-        print("customer id   : "+str(id))
-        print("customer name : "+str(text))
-finally:
-        GPIO.cleanup()
-print("please enter your 4 digit pin")
-password = input()
-while password != 1234:
-      print("incorrect pin please re-enter your pin")
-      password = input()
+##print("please scan your SVM debit card")
+##reader = SimpleMFRC522.SimpleMFRC522()
+##
+##try:
+##        id, text = reader.read()
+##        print("customer id   : "+str(id))
+##        print("customer name : "+str(text))
+##finally:
+##        GPIO.cleanup()
+##print("please enter your 4 digit pin")
+##password = input()
+##while password != 1234:
+##      print("incorrect pin please re-enter your pin")
+##      password = input()
 
 print("Today we have beverages for you!")
 print("|--------------------------|")
@@ -92,79 +104,79 @@ amount1 = 0
 amount2 = 0
 amount3 = 0
 amount4 = 0
-ledoff(18)
-ledoff(23)
-ledoff(24)
-ledoff(7)
+ledon(18)
+ledon(23)
+ledon(24)
+ledon(7)
 while continue_reading:
 
 	if(locks[0] == 1): 
          		print("LOCK 1 OPENED")
-         		ledon(18)
+         		ledoff(18)
          		initial_weight = float(weightInput())
          		# print (initial_weight)
          		print ('Please take the items you want! NOW! ')
          		time.sleep(7)
          		print ('Weight removed......')
+         		ledon(18)
          		print("LOCK 1 CLOSED")
-         		ledoff(18)
          		final_weight = float(weightInput())
          		# print (final_weight)
          		number_product1 = (initial_weight-final_weight)/product1.weight
          		# number_product2 = ((initial_weight-final_weight)%product1.weight)/product2_weight
          		print ('You took '+str(round(number_product1))+' '+product1.name )
-         		amount1 = number_product1*product1.price
+         		amount1 = round(number_product1)*product1.price
 
 	if(locks[1] == 1): 
          		print("LOCK 2 OPENED")
-         		ledon(23)
+         		ledoff(23)
          		initial_weight = float(weightInput())
          		# print (initial_weight)
          		print ('Please take the items you want! NOW! ')
          		time.sleep(7)
          		print ('Weight removed......')
          		print("LOCK 2 CLOSED")
-         		ledoff(23)
+         		ledon(23)
          		final_weight = float(weightInput())
          		# print (final_weight)
          		number_product2 = (initial_weight-final_weight)/product2.weight
          		# number_product2 = ((initial_weight-final_weight)%product1.weight)/product2_weight
          		print ('You took '+str(round(number_product2))+' '+product2.name )
-         		amount2 = number_product2*product2.price
+         		amount2 = round(number_product2)*product2.price
 
 	if(locks[2] == 1): 
          		print("LOCK 3 OPENED")
-         		ledon(24)
+         		ledoff(24)
          		initial_weight = float(weightInput())
          		# print (initial_weight)
          		print ('Please take the items you want! NOW! ')
          		time.sleep(7)
          		print ('Weight removed......')
          		print("LOCK 3 CLOSED")
-         		ledoff(24)
+         		ledon(24)
          		final_weight = float(weightInput())
          		# print (final_weight)
          		number_product3 = (initial_weight-final_weight)/product3.weight
          		# number_product2 = ((initial_weight-final_weight)%product1.weight)/product2_weight
          		print ('You took '+str(round(number_product3))+' '+product3.name )
-         		amount3 = number_product3*product3.price
+         		amount3 = round(number_product3)*product3.price
 
 	if(locks[3] == 1): 
          		print("LOCK 4 OPENED")
-         		ledon(7)
+         		ledoff(7)
          		initial_weight = float(weightInput())
          		# print (initial_weight)
          		print ('Please take the items you want! NOW! ')
          		time.sleep(7)
          		print ('Weight removed......')
          		print("LOCK 4 CLOSED")
-         		ledoff(7)
+         		ledon(7)
          		final_weight = float(weightInput())
          		# print (final_weight)
          		number_product4 = (initial_weight-final_weight)/product4.weight
          		# number_product2 = ((initial_weight-final_weight)%product1.weight)/product2_weight
          		print ('You took '+str(round(number_product4))+' '+product4.name )
-         		amount4 = number_product4*product4.price
+         		amount4 = round(number_product4)*product4.price
             	
 	# print("Do you want to continue purchase?")
 	# continue_reading = input("True/False")
