@@ -21,11 +21,20 @@ factory = rpi_gpio.KeypadFactory()
 keypad = factory.create_keypad(keypad=KEYPAD, row_pins=ROW_PINS, col_pins=COL_PINS)
 
 #keypad.cleanup()
-
+s=""
+ss=""
 def printKey(key):
-  print(key)
-  key_seq.append(key)
-  print(key_seq)
+    print(key)
+    key_seq.append(key)
+    print(key_seq)
+    print(key_seq)
+    if(len(key_seq) == 4):
+        ss=""
+        for i in range(4):
+            ss = key_seq.pop() + ss
+    print(key_seq)
+    print(ss)
+  
   #if (key=="1"):
   #  print("number")
   #elif (key=="A"):

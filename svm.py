@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-import subprocess
+#import subprocess
 import requests
 import sqlite3
 import time
@@ -10,16 +10,59 @@ import array
 import serial
 import time
 import math
+
+#######   KEYPAD start  #########
+from pad4pi import rpi_gpio
+
+KEYPAD = [
+        ["1","2","3","A"],
+        ["4","5","6","B"],
+        ["7","8","9","C"],
+        ["*","0","#","D"]
+]
+
+factory = rpi_gpio.KeypadFactory()
+
+
+# same as calling: factory.create_4_by_4_keypad, still we put here fyi:
+ROW_PINS = [4, 5, 6, 13] # BCM numbering
+COL_PINS = [12, 26, 2, 3] # BCM numbering
+
+
+keypad = factory.create_keypad(keypad=KEYPAD, row_pins=ROW_PINS, col_pins=COL_PINS)
+
+key= str()
+ss=str("0000")
+key_seq=[]
+
+def printKey(key):
+    print(key)
+    key_seq.append(key)
+    print(key_seq)
+    print(key_seq)
+    if(len(key_seq) == 4):
+        ss="0000"
+        for i in range(4):
+            ss = key_seq.pop() + ss
+    print(key_seq)
+    print(ss)  
+keypad.registerKeyPressHandler(printKey)
+
+
+######   KEYPAD END ######
+
 usernum=0
 UID=""
 continue_reading = True
 BuzzerPin = 11 # Raspberry Pi Pin 17-GPIO 17
 
+#reader = SimpleMFRC522.SimpleMFRC522()
+
 connection = sqlite3.connect("svm_data.db")
 crsr = connection.cursor()
 
 # Raspberry Pi pin configuration:
-lcd_rs        = 25  # Note this might need to be changed to 21 for older revision Pi's.
+lcd_rs        = 16  # Note this might need to be changed to 21 for older revision Pi's.
 lcd_en        = 24
 lcd_d4        = 23
 lcd_d5        = 17
@@ -64,9 +107,16 @@ def locks_to_open():
         lcd_print ("Do you want to open lock "+str(i+1))
         locks.append(input())
     # print ('ARRAY: ',locks_array) 
-    # print(locks_array[0])
+    # lcd_print(locks_array[0])
     
-    return locks  
+    return locks
+def read_rfid ():
+    #id, text = reader.read()
+    print(id)
+    print(text)
+    GPIO.cleanup()
+    return(id)
+
 def lcd_print(data):
     if len(data)>30:
         lcd_print(data[:14])
@@ -127,20 +177,20 @@ def weightInput():
 ##lcd.clear()
 lcd_print("Welcome to SVM \nv1.0")
 lcd_print("please scan your SVM debit card")
-##reader = SimpleMFRC522.SimpleMFRC522()
-##
-##try:
-##        id, text = reader.read()
+#reader = SimpleMFRC522.SimpleMFRC522()
+#try:
+        #id, text = reader.read()
 ##        print("customer id   : "+str(id))
 ##        print("customer name : "+str(text))
-##finally:
-##        GPIO.cleanup()
+#finally:
+       # GPIO.cleanup()
 ##print("please enter your 4 digit pin")
 ##password = input()
 ##while password != 1234:
 ##      print("incorrect pin please re-enter your pin")
 ##      password = input()
 try:
+	#read_rfid()
 	#myLines=subprocess.check_output("/usr/bin/nfc-poll", stderr=open('/dev/null','w'))
 	#buffer=[]
 	#for line in myLines.splitlines():
@@ -151,7 +201,7 @@ try:
 	#		buffer.append(line_content)
 	#str=buffer[0]
 	#id_str=str[2]+str[3]+str[4]+str[5]
-	id_str= "52b1661f"
+	id_str= str(id)
 	UID=id_str
 	lcd_print (id_str)
 	#del buffer
@@ -163,10 +213,16 @@ try:
 	del id_str
         lcd_print("name : "+str(user1[usernum].name))
         lcd_print("please enter your 4 digit pin")
-        password = input()
-        while password != int(user1[usernum].password):
+        #str="0"
+        #while(len(str)<5):
+        #    print(str)
+        #    time.sleep(0.2)
+        #    str=printKey(key)+str
+        
+        password=int(ss[0:3])
+        while password/10 != int(user1[usernum].password):
               lcd_print("incorrect pin please re-enter your pin")
-              password = input()
+              password=int(ss[0:3])
 	lcd_print("login successfull")
 	lcd_print("USER : "+user1[usernum].name)
 	lcd_print("BALANCE : INR "+user1[usernum].balance)
@@ -214,7 +270,7 @@ while continue_reading:
          		number_product1 = (initial_weight-final_weight)/product1.weight
          		# number_product2 = ((initial_weight-final_weight)%product1.weight)/product2_weight
          		p1=str(round(number_product1))
-         		print ('You took '+str(round(number_product1))+' '+product1.name )
+         		lcd_print ('You took '+str(round(number_product1))+' '+product1.name )
          		amount1 = round(number_product1)*product1.price
 
 	if(locks[1] == 1): 
@@ -232,7 +288,7 @@ while continue_reading:
          		number_product2 = (initial_weight-final_weight)/product2.weight
          		# number_product2 = ((initial_weight-final_weight)%product1.weight)/product2_weight
          		p2=str(round(number_product2))
-         		print ('You took '+str(round(number_product2))+' '+product2.name )
+         		lcd_print ('You took '+str(round(number_product2))+' '+product2.name )
          		amount2 = round(number_product2)*product2.price
 
 	if(locks[2] == 1): 
